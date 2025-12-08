@@ -19,7 +19,7 @@ nAlgo = numel(algos);
 
 refIdx = find(strcmpi(refName, algos));
 
-% Matrix to store p-values: rows = algorithms except hybrid, cols = F1..F7
+
 pMatFunc = nan(nAlgo-1, nFunc);
 
 rowNames = algos; rowNames(refIdx) = [];  % remove hybrid from rows
@@ -86,3 +86,4 @@ fprintf(fid,'\\end{table}\n');
 fclose(fid);
 
 fprintf('Saved LaTeX: wilcoxon_hybrid_across_functions.tex\n');
+
