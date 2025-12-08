@@ -1,8 +1,7 @@
 function compare_many_algorithms()
-% compare_many_algorithms - compare many optimization algos on one benchmark
-% Robust version: avoids nanmedian/fragile reshape calls (safe for Octave/MATLAB).
 
-%% ----------------- User settings -----------------
+
+%% -----------------settings -----------------
 base_algos_folder = 'C:\Users\BASANT\MOUNTAIN_GAZELLE\compare_all_algos\'; % CHANGE if needed
 algorithms = {'mgo','hybrid','gwo','pso','woa','sca','tsa'}; % order shown in legend
 SearchAgents_no = 30;
@@ -14,7 +13,7 @@ save_results    = true;
 outfilename     = sprintf('compare_many_%s_R%d_I%d.mat', Function_name, Runs, Max_iteration);
 % --------------------------------------------------
 
-% add the entire base folder so which() can find files already on path
+
 if exist(base_algos_folder,'dir')
     addpath(genpath(base_algos_folder));
 else
@@ -33,7 +32,7 @@ nAlgos = numel(algorithms);
 all_curves = NaN(nAlgos, Runs, Max_iteration);
 best_vals = NaN(nAlgos, Runs);
 
-% Resolve or create callable for each algorithm
+
 algo_callables = cell(1, nAlgos);
 for a = 1:nAlgos
     name = algorithms{a};
@@ -209,7 +208,7 @@ for r = 1:Runs
     end
 end
 
-% ---------- Robust median-curves computation (no nanmedian / reshape) ----------
+
 median_curves = NaN(nAlgos, Max_iteration);
 
 for a = 1:nAlgos
@@ -553,3 +552,4 @@ else
     s = '<unknown>';
 end
 end
+
