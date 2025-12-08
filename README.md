@@ -44,21 +44,29 @@ Install it using the default settings and launch Octave after installation.
 
 ## 📥 2. Download or Clone This Repository
 
-### **Option A: Download ZIP**
-1. Click the green **Code** button (top-right of repo)
-2. Select **Download ZIP**
-3. Extract the folder anywhere on your computer
+### **Option A: Download ZIP (Recommended for Beginners)**
 
-### **Option B: Clone with Git**
+1. Open the repository:  
+   🔗 https://github.com/BASANT1896/Hybrid-MGO-GWO-Optimizer
+2. Click the green **Code** button (top-right).
+3. Select **Download ZIP**.
+4. Extract the ZIP file to any folder on your computer.
+
+---
+
+### **Option B: Clone the Repository Using Git**
+
+If you prefer using Git Command Line Interface, run the following command:
+
 ```bash
-git clone https://github.com/YourUsername/YourRepoName.git
-
+git clone https://github.com/BASANT1896/Hybrid-MGO-GWO-Optimizer.git
+```
 
 
 ### Citations:
 
 MGO Original Code:benyamin abdollahzadeh (2025). Mountain Gazelle Optimizer (https://in.mathworks.com/matlabcentral/fileexchange/118680-mountain-gazelle-optimizer), MATLAB Central File Exchange. Retrieved December 8, 2025.
 GWO Original Code:Seyedali Mirjalili (2025). Grey Wolf Optimizer (GWO) (https://in.mathworks.com/matlabcentral/fileexchange/44974-grey-wolf-optimizer-gwo), MATLAB Central File Exchange. Retrieved December 8, 2025.
-
+PSO Original Code:Yarpiz / Mostapha Heris (2025). Particle Swarm Optimization (PSO) (https://in.mathworks.com/matlabcentral/fileexchange/52857-particle-swarm-optimization-pso), MATLAB Central File Exchange. Retrieved December 8, 2025.
 
 
