@@ -1,6 +1,6 @@
 function build_comparison_tables()
 
-    % Directory where your .mat files are stored
+    
     results_folder = pwd();
     mat_files = dir(fullfile(results_folder, "compare_many_F*.mat"));
 
@@ -8,7 +8,7 @@ function build_comparison_tables()
         error("No result files found such as compare_many_F1_*.mat");
     end
 
-    % list of all algorithms (we assume consistent across files)
+   
     master_algo_list = {};
     all_results = struct();   % will hold statistics for each F
 
@@ -23,14 +23,14 @@ function build_comparison_tables()
             master_algo_list = algos;   % store once
         end
 
-        % extract statistics
+       
         mean_final   = data.mean_final(:)';
         median_final = data.median_final(:)';
         std_final    = data.std_final(:)';
         best_final   = data.best_overall(:)';
         worst_final  = data.worst_final(:)';
 
-        % store inside structure
+       
         func_name = data.Function_name;   % example: 'F1'
         all_results.(func_name).mean   = mean_final;
         all_results.(func_name).median = median_final;
@@ -39,9 +39,7 @@ function build_comparison_tables()
         all_results.(func_name).worst  = worst_final;
     end
 
-    %% ==========================
-    %  WRITE ONE CSV PER FUNCTION
-    %% ==========================
+  
     func_names = fieldnames(all_results);
 
     for i = 1:length(func_names)
@@ -51,7 +49,7 @@ function build_comparison_tables()
 
         fid = fopen(outname, "w");
 
-        % header
+     
         fprintf(fid, "Algorithm,Mean,Median,Std,Best,Worst\n");
 
         for a = 1:length(master_algo_list)
@@ -67,16 +65,13 @@ function build_comparison_tables()
         fclose(fid);
     end
 
-    %% ==========================================
-    %   WRITE ONE BIG CSV FOR ALL FUNCTIONS
-    %% ==========================================
-
+ 
     big_name = "comparison_all_functions.csv";
     printf("Writing %s\n", big_name);
 
     fid = fopen(big_name, "w");
 
-    % header
+   
     fprintf(fid, "Function,Algorithm,Mean,Median,Std,Best,Worst\n");
 
     for i = 1:length(func_names)
@@ -94,6 +89,7 @@ function build_comparison_tables()
 
     fclose(fid);
 
-    printf("\n✓ All comparison tables generated successfully.\n");
+    printf("All comparison tables generated successfully.");
 end
+
 
