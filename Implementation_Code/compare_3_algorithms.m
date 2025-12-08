@@ -1,9 +1,7 @@
 function compare_3_algorithms()
-% compare_3_algorithms - compare MGO, HYBRID, and GWO (Octave/MATLAB compatible)
-% Produces a single figure: median convergence (IQR shaded) for the three algos.
-% Saves a .mat file (falls back to tempdir if save to cwd fails).
 
-%% --------------- User settings ---------------
+
+
 SearchAgents_no = 30;
 Max_iteration   = 500;
 Runs            = 30;                % set >1 to get meaningful mean/std
@@ -12,7 +10,7 @@ rng_seed        = 1;
 
 save_results = true;
 outfilename = sprintf('compare_MGO_Hybrid_GWO_%s_R%d_I%d.mat', Function_name, Runs, Max_iteration);
-% --------------- paths (edit if needed) ---------------
+
 mgo_folder    = 'C:\Users\BASANT\MOUNTAIN_GAZELLE\compare_all_algos\MGO';
 gwo_folder    = 'C:\Users\BASANT\MOUNTAIN_GAZELLE\compare_all_algos\GWO';
 hybrid_folder = 'C:\Users\BASANT\MOUNTAIN_GAZELLE\compare_all_algos\HYBRID';
@@ -34,7 +32,7 @@ else
     LB = lb; UB = ub;
 end
 
-% preallocate storage
+
 all_curves.mgo    = NaN(Runs, Max_iteration);
 all_curves.hybrid = NaN(Runs, Max_iteration);
 all_curves.gwo    = NaN(Runs, Max_iteration);
@@ -43,14 +41,13 @@ final_vals.mgo    = NaN(Runs,1);
 final_vals.hybrid = NaN(Runs,1);
 final_vals.gwo    = NaN(Runs,1);
 
-% find runnable function names (first candidate that executes)
 mgo_fun    = find_working_fun(mgo_names, SearchAgents_no, Max_iteration, LB, UB, dim, fobj);
 hybrid_fun = find_working_fun(hybrid_names, SearchAgents_no, Max_iteration, LB, UB, dim, fobj);
 gwo_fun    = find_working_fun(gwo_names, SearchAgents_no, Max_iteration, LB, UB, dim, fobj);
 
 fprintf('Using functions: MGO -> %s, Hybrid -> %s, GWO -> %s\n', mgo_fun, hybrid_fun, gwo_fun);
 
-% run experiments
+
 rng(rng_seed);
 for r = 1:Runs
     fprintf('Run %d / %d\n', r, Runs);
@@ -92,7 +89,7 @@ for r = 1:Runs
     final_vals.gwo(r) = BestF_g;
 end
 
-% --------------- Summary statistics ---------------
+%STATISTICS:
 median_mgo    = median(all_curves.mgo, 1);
 median_hybrid = median(all_curves.hybrid, 1);
 median_gwo    = median(all_curves.gwo, 1);
@@ -119,21 +116,21 @@ std_final.gwo    = std_ignore_nan(final_vals.gwo);
 best_overall.gwo = min(final_vals.gwo);
 worst_final.gwo  = max(final_vals.gwo);
 
-% print table to console
+
 fprintf('\nSummary (final iteration statistics):\n');
 fprintf('Algorithm | mean_final | median_final | std_final | best | worst\n');
 fprintf('MGO    | %g | %g | %g | %g | %g\n', mean_final.mgo, median_final.mgo, std_final.mgo, best_overall.mgo, worst_final.mgo);
 fprintf('Hybrid | %g | %g | %g | %g | %g\n', mean_final.hybrid, median_final.hybrid, std_final.hybrid, best_overall.hybrid, worst_final.hybrid);
 fprintf('GWO    | %g | %g | %g | %g | %g\n', mean_final.gwo, median_final.gwo, std_final.gwo, best_overall.gwo, worst_final.gwo);
 
-% --------------- Plot median convergence with IQR shading ---------------
+
 iters = 1:Max_iteration;
 fig = figure('Name','Convergence Comparison - MGO/Hybrid/GWO','NumberTitle','off');
 ax = gca();
 hold(ax,'on');
 
 alpha_val = 0.18;
-% draw IQR patches first (so they are under the lines)
+
 if all(~isnan(p25_mgo))
     hpatch_mgo = fill([iters fliplr(iters)], [p25_mgo fliplr(p75_mgo)], [0.85 0.92 1], 'EdgeColor','none');
     set(hpatch_mgo ,'FaceAlpha', alpha_val);
@@ -151,7 +148,7 @@ if all(~isnan(p25_gwo))
     try set(get(hpatch_gwo,'Annotation'),'LegendInformation',struct('IconDisplayStyle','off')); end
 end
 
-% explicit line colors and handles (ensures legend shows colors consistently)
+
 c_mgo = [0 0.447 0.741];
 c_hybrid = [0 0 0];
 c_gwo = [0.466 0.674 0.188];
@@ -160,7 +157,7 @@ h1 = semilogy(iters, median_mgo, 'LineWidth', 1.8, 'Color', c_mgo);
 h2 = semilogy(iters, median_hybrid, 'LineWidth', 1.8, 'Color', c_hybrid);
 h3 = semilogy(iters, median_gwo, 'LineWidth', 1.8, 'Color', c_gwo);
 
-% ensure legend sees only the lines
+
 set(h1,'HandleVisibility','on'); set(h2,'HandleVisibility','on'); set(h3,'HandleVisibility','on');
 
 legend([h1 h2 h3], {'MGO','Hybrid','GWO'}, 'Location', 'northeast');
@@ -172,7 +169,7 @@ grid(ax,'off');
 box(ax,'on');
 hold(ax,'off');
 
-% --------------- Save results robustly ---------------
+
 if save_results
     saveVars = {'all_curves','final_vals','median_mgo','median_hybrid','median_gwo', ...
                 'mean_final','median_final','std_final','best_overall','worst_final', ...
@@ -210,10 +207,9 @@ end
 
 end
 
-%% ------------------ Helper functions ------------------
 
 function name = find_working_fun(candidates, N, MaxIter, LB, UB, dim, fobj)
-% Try each candidate name and return the first that executes a tiny test run.
+
 name = '';
 for k = 1:length(candidates)
     fname = candidates{k};
@@ -230,7 +226,7 @@ error('None of the candidate function names worked. Tried: %s', strjoin(candidat
 end
 
 function vec = ensure_length(cnvg, L)
-% Make cnvg a 1xL row vector, padding with last value or NaNs as needed.
+
 if isempty(cnvg)
     vec = NaN(1,L);
     return;
@@ -248,7 +244,7 @@ end
 end
 
 function m = mean_ignore_nan(X)
-% column-wise mean ignoring NaNs
+
 X = double(X);
 m = NaN(1, size(X,2));
 for j = 1:size(X,2)
@@ -259,7 +255,7 @@ end
 end
 
 function s = std_ignore_nan(X)
-% column-wise sample std ignoring NaNs
+
 X = double(X);
 s = NaN(1, size(X,2));
 for j = 1:size(X,2)
@@ -275,7 +271,7 @@ end
 end
 
 function med = median_ignore_nan(X)
-% column-wise median ignoring NaNs
+
 X = double(X);
 med = NaN(1, size(X,2));
 for j = 1:size(X,2)
@@ -290,4 +286,5 @@ for j = 1:size(X,2)
     end
 end
 end
+
 
