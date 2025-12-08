@@ -272,9 +272,9 @@ for a = 1:nAlgos
 
     median_curves(a, :) = med_row;
 end
-% ---------------- end robust median computation -------------------------
 
-% plot all on same figure
+
+
 figure('Name','Convergence Comparison - All Algos','NumberTitle','off','Units','normalized','Position',[0.1 0.1 0.7 0.6]);
 hold on;
 iters = 1:Max_iteration;
@@ -288,8 +288,7 @@ title(sprintf('Median Convergence over %d Runs on %s', Runs, Function_name));
 axis tight; grid off; box on;
 hold off;
 
-% compute final statistics from all_curves
-% ensure all_curves shape nAlgos x Runs x Max_iteration
+
 sz = size(all_curves);
 if numel(sz) == 2
     % ambiguous; attempt to reshape sen save_resultsibly only when safe
@@ -303,8 +302,7 @@ end
 
 finals = squeeze(all_curves(:,:,end)); % nAlgos x Runs (or nAlgos x 1)
 
-% ---------- Robust final statistics (no nanmedian/std overloads) ----------
-% ensure finals is 2D nAlgos x Runs
+
 if isvector(finals)
     finals = reshape(finals, [size(finals,1), max(1,size(finals,2))]); % best-effort
 end
@@ -353,13 +351,12 @@ for a=1:nAlgos
     fprintf('%s, %g, %g, %g, %g, %g\n', algorithms{a}, mean_final(a), median_final(a), std_final(a), best_overall(a), worst_final(a));
 end
 
-% Save results
-% --- robust save with fallbacks ---
+
 saveVars = {'algorithms','all_curves','median_curves','best_vals', ...
         'SearchAgents_no','Max_iteration','Runs','Function_name', ...
         'mean_final','median_final','std_final','best_overall','worst_final'};
 
-% attempt 1: original outfilename (relative to pwd)
+
 try
     save(outfilename, saveVars{:});
     fprintf('Saved results to %s\n', fullfile(pwd, outfilename));
@@ -401,7 +398,6 @@ catch ME1
         end
     end
 end
-% --- end robust save ---
 
 
 end
@@ -552,4 +548,5 @@ else
     s = '<unknown>';
 end
 end
+
 
