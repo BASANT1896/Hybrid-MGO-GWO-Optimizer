@@ -25,4 +25,10 @@ The project focuses on enhancing optimization performance through a hybridizatio
 - Includes scripts for multiple-function comparisons.
 
 
+### Citations:
+
+MGO Original Code:benyamin abdollahzadeh (2025). Mountain Gazelle Optimizer (https://in.mathworks.com/matlabcentral/fileexchange/118680-mountain-gazelle-optimizer), MATLAB Central File Exchange. Retrieved December 8, 2025.
+GWO Original Code:Seyedali Mirjalili (2025). Grey Wolf Optimizer (GWO) (https://in.mathworks.com/matlabcentral/fileexchange/44974-grey-wolf-optimizer-gwo), MATLAB Central File Exchange. Retrieved December 8, 2025.
+
+
 
