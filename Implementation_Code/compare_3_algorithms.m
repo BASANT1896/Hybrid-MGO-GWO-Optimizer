@@ -1,3 +1,5 @@
+%FOR COMPARISON BETWEEN MGO/GWO AND HYBRID ALGORITHM ONLY
+
 function compare_3_algorithms()
 
 
@@ -286,5 +288,6 @@ for j = 1:size(X,2)
     end
 end
 end
+
 
 
