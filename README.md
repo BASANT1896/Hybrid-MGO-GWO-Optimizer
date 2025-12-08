@@ -24,6 +24,36 @@ The project focuses on enhancing optimization performance through a hybridizatio
 - Produces aggregated tables summarizing whether the Hybrid algorithm significantly outperforms MGO and GWO.
 - Includes scripts for multiple-function comparisons.
 
+  # 📘 How to Use This Optimizer
+
+You need to set up **GNU Octave** or **MATLAB**, download the repository, and run the provided optimization algorithms (MGO, GWO, and Hybrid MGO-GWO).
+
+---
+
+## 🛠 1. Install GNU Octave (Free & Open Source)
+
+If you do not have MATLAB, you can use **GNU Octave**, which is completely free.
+
+Download here:
+
+🔗 [https://octave.org/download](https://octave.org/download)
+
+Install it using the default settings and launch Octave after installation.
+
+---
+
+## 📥 2. Download or Clone This Repository
+
+### **Option A: Download ZIP**
+1. Click the green **Code** button (top-right of repo)
+2. Select **Download ZIP**
+3. Extract the folder anywhere on your computer
+
+### **Option B: Clone with Git**
+```bash
+git clone https://github.com/YourUsername/YourRepoName.git
+
+
 
 ### Citations:
 
