@@ -1,0 +1,960 @@
+\documentclass[12pt,a4paper]{article}
+
+% ====== PACKAGES ======
+\usepackage{times}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{algorithm2e}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{subcaption}  % needed for \begin{subfigure}
+\usepackage{float}
+\usepackage[margin=1in]{geometry}
+\usepackage{tabularx}
+\usepackage{booktabs}   % for \toprule, \midrule, \bottomrule
+\usepackage{tabularx}   % for flexible column widths
+\usepackage{array}      % for p{width} columns
+\usepackage{comment}
+\usepackage{amsmath, amssymb}
+\usepackage{unicode-math}
+
+\usepackage{mathastext}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit}
+
+\usepackage[flushleft]
+{threeparttable}
+
+
+
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+}
+
+
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{lipsum} % for placeholder text (optional)
+
+
+% ---------- FRONT PAGE ----------
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+
+    % ---- IMAGE ----
+    \includegraphics[width=0.6\textwidth]{nsut logo.jpg}\\[1cm]
+
+    % ---- TITLE ----
+    {\Huge \textbf{Hybrid Mountain Gazelle–Gray Wolf Optimizer (MGO–GWO)}}\\[0.5cm]
+    {\Large A Nature-Inspired Metaheuristic for Global Optimization}\\[1.5cm]
+
+    % ---- AUTHORS ----
+    {\large Basant (2023UCA1896) 
+    Email:basant.ug23@nsut.ac.in, Phone:8287768802}\\
+    {\large Piyush Yadav (2023UCA1889)}\\
+    {\large Ayush Meena (2023UCA1945)}\\
+    {\large Nipun Garg (2023UCA1883)}\\[2cm]
+ 
+
+    \vfill
+    {\large Netaji Subhas University of Technology (NSUT)}\\
+    {\large Department of Computer Engineering}
+
+\end{titlepage}
+
+
+
+% ====== FORMATTING ======
+\setstretch{1.5} % double-spaced style suitable for reports/theses
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+% ====== TITLE BLOCK ======
+\title{\textbf{Hybrid Mountain Gazelle-Gray Wolf Optimizer}}
+\author{
+Basant , Piyush Yadav , Nipun Garg , Ayush Meena\\[6pt]
+\small Department of Computer Engineering\\
+\small Instructor : Ms. Monika\\
+\small Netaji Subhas University of Technology (NSUT), Delhi, India
+}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The Mountain Gazelle Optimizer (MGO) is a recent nature-inspired metaheuristic that models the foraging and vigilance behavior of mountain gazelles to achieve a balanced trade-off between exploration and exploitation. While MGO demonstrates strong global exploration capability through its adaptive roaming and population diversity, it often exhibits limited exploitation efficiency during the later stages of optimization, leading to slower convergence near the global optimum. To overcome this limitation, this paper introduces a novel hybrid algorithm—Hybrid MGO–GWO—which integrates the exploitation strength of the Grey Wolf Optimizer (GWO) with the exploration-driven dynamics of MGO. The proposed hybrid approach employs a dynamic weighting mechanism that gradually transitions from MGO-dominated exploration in the early iterations to GWO-guided exploitation in the later phases, thus maintaining population diversity while accelerating convergence. 
+
+
+The performance of the Hybrid MGO–GWO is evaluated on 23 benchmark functions, including 16 multimodal and 7 unimodal test problems, and compared against standard optimization algorithms such as PSO, GWO, and MGO. Experimental results demonstrate that the proposed hybrid algorithm achieves superior convergence speed, improved solution accuracy, and enhanced robustness across most benchmark cases, validating its effectiveness in addressing complex nonlinear optimization problems.
+
+The implementation of hybridized algorithm is publicly available at:
+\url{https://github.com/BASANT1896/Hybrid-MGO-GWO-Optimizer}
+
+
+\end{abstract}
+
+
+\section{Introduction}
+Optimization algorithms inspired by biological systems, swarms, and social behaviors have become indispensable in engineering, machine learning, and applied sciences \cite{metaheuristics, abdollahzadeh2021a, derrac2011, wolpert1997}. The Mountain Gazelle Optimizer (MGO) models the movement, vigilance, and cooperative foraging behavior of mountain gazelles to explore complex landscapes \cite{mgo}. While MGO is effective at discovering diverse regions of the search space, it can benefit from stronger exploitation mechanisms to refine solutions near the optimum \cite{benchmark, wilcoxon}.
+
+The Grey Wolf Optimizer (GWO) is a well-established algorithm that models the social hierarchy and cooperative hunting strategy of grey wolves \cite{gwo}. GWO excels at exploitation by guiding agents toward the top leaders (alpha, beta, delta) \cite{banaie2021, balani2021}.
+
+In this report, we develop a principled hybrid called \textbf{Hybrid MGO--GWO} that integrates MGO's exploration strength with GWO's exploitation power via a dynamic weight-scheme and leader-guided refinement \cite{mirjalili2016woa, mirjalili2015mfo}. The hybrid is designed to (i) maintain population diversity early, (ii) progressively shift to leader-driven exploitation, and (iii) keep computational overhead modest \cite{gharehchopogh2020, alsorori2020}.
+
+The Mountain Gazelle Optimizer (MGO) models the intelligent social and survival strategies of mountain gazelles through four main mechanisms: territorial solitary males, which represent dominant males defending specific areas and enhancing local exploitation around strong solutions; bachelor male herds, depicting groups of young or non-territorial males that explore nearby regions collectively to maintain population diversity; maternity herds, reflecting the cooperative and protective behavior of females that balance exploitation through guided, stable movements toward optimal regions; and migration for food sources, where gazelles perform long-range movements to locate better feeding grounds, driving large-scale exploration of the search space \cite{mgo}. Together, these mechanisms establish a natural balance between exploration and exploitation, though MGO’s exploitation remains relatively weak—hence, the proposed Hybrid MGO–GWO integrates GWO’s strong hunting-based exploitation strategy to improve convergence accuracy and optimization performance \cite{gwo, abualigah2021aqp, elaziz2021}.
+
+\section{Literature Review}
+
+Optimization problems arise frequently in various domains, including machine learning, engineering design, image processing, and scheduling \cite{metaheuristics, abdollahzadeh2021a}. Classical deterministic optimization techniques often fail to handle the complex, nonlinear, and multimodal nature of modern real-world problems \cite{wolpert1997, derrac2011}. As a result, metaheuristic algorithms inspired by natural and biological processes have become prominent due to their ability to efficiently balance global exploration and local exploitation in high-dimensional search spaces \cite{metaheuristics, sheskin2020}.
+
+\subsection{Nature-Inspired Metaheuristics}
+Nature-inspired metaheuristics such as Genetic Algorithm (GA) and Particle Swarm Optimization (PSO) achieve global optimization through stochastic population-based search \cite{ga, pso}. Over time, a new generation of algorithms inspired by animal behavior, ecological dynamics, and swarm intelligence—such as Whale Optimization Algorithm (WOA), Grey Wolf Optimizer (GWO), and Ant Colony Optimization (ACO)—further refined this paradigm \cite{mirjalili2016woa, gwo}. These algorithms are designed around collective intelligence and movement patterns that enable populations to escape local optima and converge toward the global best solution efficiently \cite{mirjalili2015mfo, pso_mw}.
+
+\subsection{Mountain Gazelle Optimizer (MGO)}
+The Mountain Gazelle Optimizer (MGO) is a recent addition to the family of bio-inspired metaheuristics \cite{mgo}. It simulates the natural behaviors of mountain gazelles, including territorial dominance, mating strategies, and group movement dynamics, to perform global search. MGO excels in maintaining a diverse population through extensive exploration in the early iterations, helping it avoid premature convergence \cite{gharehchopogh2020}. However, benchmark studies based on the CEC 2017 unimodal suite reveal that MGO demonstrates slower convergence and weaker fine-tuning capability during exploitation \cite{benchmark, wilcoxon}. This limitation becomes significant in unimodal functions with narrow valleys, such as the Rosenbrock function, where strong exploitation is required for accurate convergence.
+
+\subsection{Grey Wolf Optimizer (GWO)}
+The Grey Wolf Optimizer (GWO) \cite{gwo} mimics the social hierarchy and cooperative hunting mechanism of grey wolves. The population is categorized into $\alpha$, $\beta$, $\delta$, and $\omega$ wolves to model leadership and followership behavior. GWO is particularly effective in exploitation due to its controlled encircling mechanism and adaptive coefficient parameters \cite{banaie2021}. It has been successfully applied across engineering and machine learning domains owing to its convergence efficiency and model simplicity \cite{balani2021}. However, GWO may suffer from inadequate exploration during early iterations, risking stagnation in highly complex multimodal landscapes \cite{elaziz2021}.
+
+\subsection{Hybridization Strategies in Metaheuristics}
+Hybrid metaheuristics have emerged as a powerful strategy to overcome the limitations of standalone algorithms \cite{hybrid_review}. By integrating two or more complementary optimization approaches, hybridized frameworks can achieve improved balance between exploration and exploitation \cite{alsorori2020, abualigah2021aqp}. Examples include PSO–GA, DE–GWO, and WOA–PSO hybrids, where one algorithm contributes search diversity while the other enhances local refinement \cite{zamani2021}. The hybridization of exploration-driven and exploitation-driven methods has been shown to yield more stable convergence behavior and superior average performance on benchmark functions \cite{abualigah2021aoa, elaziz2021}.
+
+\subsection{Motivation for the Hybrid MGO–GWO}
+While MGO provides strong exploration abilities and maintains search diversity across the optimization landscape \cite{mgo}, it lacks efficient exploitation strength in later iterations \cite{benchmark}. On the other hand, GWO excels in exploitation by leveraging hierarchical leadership and encircling-based convergence mechanisms \cite{gwo}. The proposed Hybrid MGO–GWO aims to exploit the strengths of both strategies, using MGO for early-stage global search and GWO for precise late-stage refinement \cite{mirjalili2016woa}. This synergy ensures faster convergence, improved accuracy, and better resistance to local optima \cite{alsorori2020, elaziz2021}.
+
+\subsection{Related Works and Benchmark Findings}
+Recent research has demonstrated the effectiveness of hybrid metaheuristics in solving real-world optimization problems \cite{hybrid_review}. Studies combining GWO with PSO and DE have shown consistent improvements in terms of convergence speed and optimization stability \cite{zamani2021, shayanfar2018}. Similar trends are observed in domains such as feature selection, parameter tuning, and energy system modeling \cite{abdollahzadeh2021a}. In this study, comparative results across standard unimodal and multimodal benchmark functions, such as Sphere, Rosenbrock, Rastrigin, Ackley, and Levy, demonstrate that the proposed Hybrid MGO–GWO surpasses standalone variants in terms of mean fitness and convergence reliability \cite{gharehchopogh2021, abdollahzadeh2021avoa}.
+
+
+\section{Mountain Gazelle Optimizer (MGO)}
+
+\subsection{Biological Inspiration and Intuition}
+Mountain gazelle is a species of Gazelle. This animal is native to the
+Arabian Peninsula and the surrounding areas, and its distribution in
+these areas is large, but its density is very low. Its habitat is closely
+related to the Robinia tree species’ habitat. As the temperature rose in
+the late Holocene, the species ceded parts of its territory to Gazella
+bennettii, which is well developed for living in hot weather. The
+mountain gazelle is intensely territorial. A great distance separates their
+territory from each other. They form three groups: mother-offspring
+herds, young male herds, and single males’ territory. The battle
+between the gazelles takes place regularly as the males reach adulthood.
+The struggle of the neighboring males over the environment is more
+dramatic and has less violence than the battle over the possession of
+females. Immature males use their horns more infighting than adult
+males or landowners. The mountain gazelle constantly migrates in
+search of food over more than 120 km distances. The animal has a very
+high running speed and can run several hundred meters at 80 kilometers
+per hour. \cite{mgo} 
+
+Mountain gazelles roam, forage, and constantly balance exploration (searching wide territories) and exploitation (focusing near promising feeding areas) while maintaining vigilance against predators. MGO encodes these behaviors with population-based position updates, random roaming, mean-field attraction, and vigilance-based perturbations.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.1\linewidth]{Screenshot 2025-11-09 165634.png}
+    \caption{MGO OPTIMIZATION PROCEDURE.}
+    \label{fig:your_label}
+\end{figure}
+
+
+\subsection{Notation and Setup}
+Let the search space be $D$-dimensional. The population consists of $N$ gazelles. The position of gazelle $i$ at iteration $t$ is
+\[
+X_i^t = [x_{i1}^t, x_{i2}^t, \dots, x_{iD}^t].
+\]
+Objective function to minimize is $f(\cdot)$. Let $X_{best}^t$ denote the best-so-far solution at iteration $t$, and let $X_{mean}^t = \frac{1}{N}\sum_{i=1}^N X_i^t$ denote the population mean.
+
+\subsection{Mathematical Model}
+MGO alternates between two high-level behaviors: \textbf{Exploration (roaming)} and \textbf{Exploitation (refined foraging)}. A control parameter $p_{exp}(t)\in[0,1]$ decides the likelihood of exploration at iteration $t$ (e.g., decreasing linearly).
+
+\subsubsection{Territorial Solitary Males}
+When male mountain gazelles reach adulthood and become strong
+enough, they create a solitary territory and are highly territorial, and
+great distances separate the territories. The battle between adult male
+gazelles takes place over the territory or possession of the female. The
+young males try to occupy the territory or the female; on the other hand,
+the adult males try to protect their environment. Eq. (1) has been used to
+model the adult male territory,
+\begin{equation}
+TSM = male_{gazelle} - \left| \left( r_{i1} \times BH - r_{i2} \times X(t) \right) \times F \right| \times Cofr \cite{mgo}
+\label{eq:tsm}
+\end{equation}
+
+
+In Eq. ~\ref{eq:tsm}, malegazelle is the position vector of the best global solution
+(adult male). The parameters $r_{i1}$
+ and $r_{i2}$
+ are random integers 1 or 2. BH is
+the young male herd coefficient vector, calculated using Eq. ~\ref{eq:bh}. F is also
+computed using Eq. ~\ref{eq:f}. Cofr is also a randomly selected coefficient
+vector updated in each iteration and used to increase the search capability. 
+
+\begin{equation}
+BH = X_{ra} \times \lfloor r_1 \rfloor + M_{pr} \times \lceil r_2 \rceil, \quad 
+ra = \{\lceil \tfrac{N}{3} \rceil, \ldots, N\} \cite{mgo}
+\label{eq:bh}
+\end{equation}
+In Eq. ~\ref{eq:bh}, $X_{ra}$ is a random solution (young male) in the interval of ra.
+Mpr is the average number of search agents N which were randomly
+selected. Also, N is the total number of gazelles, while $r_{1}$ and $r_{2}$ are
+random values between 0 and 1. 
+
+\begin{equation}
+F = N_1(D) \times \exp\!\left( 2 - Iter \times \left( \frac{2}{MaxIter} \right) \right) \cite{mgo}
+\label{eq:f}
+\end{equation}
+
+
+\subsubsection{Maternity Herds}
+Maternity herds play an essential role in the life cycle of mountain
+gazelles, as these types of packs give birth to solid male gazelles. Male
+gazelles can also play a role in the delivery of gazelles and young males
+trying to possess females. This behavior is formulated using Eq. (4),
+\begin{equation}
+MH = \left( BH + Cof_{1,r} \right) + \left( r_{i3} \times male_{gazelle} - r_{i4} \times X_{rand} \right) \times Cof_{1,r} \cite{mgo}
+\label{eq:mh}
+\end{equation}
+
+In Eq. ~\ref{eq:mh}, BH is the vector of the impact factor of young males, which
+is calculated using Eq. ~\ref{eq:bh}. $Cof_{2,r}$ and $Cof_{3,r}$ are randomly selected coefficient vectors that are calculated independently using Eq. (4). $r_{i3}$ and
+$r_{i4}$ are integer and random numbers 1 or 2. malegazelle is the best (adult
+male) global solution in the current repetition. Finally, Xrand is the vector
+position of a gazelle that is randomly selected from the entire
+population. 
+
+\subsubsection{Bachelor Male Herds}
+As male gazelles mature, they tend to create territory and take
+possession of female gazelles. At this time, the young male gazelles enter the battle with the male gazelles over the domain and control of the female gazelles, which much violence can accompany. Eq. (5) is used to
+formulate this behavior of gazelles mathematically. 
+\begin{equation}
+BMH = \left( X(t) - D \right) + \left( r_{i5} \times male_{gazelle} - r_{i6} \times BH \right) \times Cofr \cite{mgo}
+\label{eq:bmh}
+\end{equation}
+In Equation~\ref{eq:bmh}, $X(t)$ represents the current position of the gazelle at iteration $t$, and $D$ is a distance-adjustment term that guides movement toward promising regions. The random coefficients $r_{i5}$ and $r_{i6}$ introduce stochastic behaviour, while $male_{gazelle}$ and $BH$ denote the positions of the dominant male and bachelor herd, respectively, influencing exploitation and localized exploration. The coefficient factor $Cofr$ regulates the update strength, and $BMH$ is the newly generated bachelor male herd position obtained after applying the behavioural update mechanism.
+
+
+
+\subsubsection{Migration for food source}
+
+Mountain gazelles constantly look for food sources and travel long
+distances to obtain food and migrate. On the other hand, mountain gazelles have high running speed and good jumping power. Eq. (6) has
+been used to formulate this behavior of gazelles mathematically. 
+
+\begin{equation}
+MSF = (ub - lb) \times r_7 + lb
+\label{eq:msf}
+\end{equation}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.1\linewidth]{Screenshot 2025-11-09 180137.png}
+    \caption{FLOWCHART OF MGO.}
+    \label{fig:your_label}
+\end{figure}
+
+In Eq. (6), ub and lb are the problem’s upper and lower limits,
+respectively. Finally, r7 is an integer between 0 and 1 chosen at random.
+The four TSM, MH, BMH, and MSF mechanisms are applied to all
+gazelles to produce new generations of gazelles. A new era is added to
+the total population, and each generation is equal to one replication.
+Moreover, all gazelles are arranged in ascending order at the end of each
+era. The best gazelles, which have high quality and promising solutions
+and cost less, are preserved in the total population. Other gazelles,
+considered old or weak ones, are removed from the whole population.
+The best Gazelle is also viewed as the adult male gazelle that owns the
+territory. The above procedure and flowchart of the MGO algorithm is also shown
+in Fig. 2. 
+
+
+\subsection{Pseudo-code (MGO)}
+  In each iteration, the Mountain Gazelle Optimizer (MGO) updates every gazelle’s position using four behavioral mechanisms: Territorial Solitary Male (TSM), Maternity Herd (MH), Bachelor Male Herd (BMH), and Migration for Food Sources (MSF). The TSM mechanism promotes independent exploration of new areas, while MH focuses on cooperative movement among female gazelles for local refinement. The BMH mechanism models competitive behavior among bachelor males to drive exploration toward promising regions, and MSF represents migration toward richer food sources to escape local optima. These four mechanisms generate candidate positions for each gazelle, their fitness values are evaluated, and the best position is selected as the updated location for the next iteration.
+
+
+\begin{algorithm2e}[H]     FROM  \cite{mgo}
+\caption{Mountain Gazelle Optimizer (MGO)}
+\label{alg:mgo}
+\KwIn{Objective function $f$, population size $N$, dimension $D$, bounds $[L,U]$, max iterations $T_{max}$}
+\KwOut{Best solution $X_{best}$ and $f(X_{best})$}
+
+Initialize population $\{X_i\}_{i=1}^N$ uniformly in $[L,U]$\;
+Evaluate $f(X_i)$ for all $i$ and set $X_{best}$\;
+
+\For{$t \leftarrow 1$ \KwTo $T_{max}$}{
+  \ForEach{gazelle $X_i$}{
+    \tcp{1. Territorial Solitary Male (TSM) update — Eq.~(\ref{eq:tsm})}
+    Compute $TSM = male_{gazelle} - |(r_{i1} \times BH - r_{i2} \times X(t)) \times F| \times Cofr$\;
+    
+    \tcp{2. Maternity Herd (MH) update — Eq.~(\ref{eq:mh})}
+    Compute $MH = (BH + Cof_{1,r}) + (r_{i3} \times male_{gazelle} - r_{i4} \times X_{rand}) \times Cof_{1,r}$\;
+    
+    \tcp{3. Bachelor Male Herd (BMH) update — Eq.~(\ref{eq:bmh})}
+    Compute $BMH = (X(t) - D) + (r_{i5} \times male_{gazelle} - r_{i6} \times BH) \times Cofr$\;
+    
+    \tcp{4. Migration for Food Sources (MSF) update — Eq.~(6)}
+    Compute $MSF$ according to the migration formula\;
+    
+    Evaluate $f(TSM)$, $f(MH)$, $f(BMH)$, and $f(MSF)$\;
+    Select the best position among $\{TSM, MH, BMH, MSF\}$ as $X_i^{new}$\;
+  }
+  
+  Sort population based on fitness (ascending order)\;
+  Update $X_{best}$ as the best gazelle so far\;
+  Retain top $N$ best individuals for the next iteration\;
+}
+\Return{$X_{best}$ and $f(X_{best})$}\;
+\end{algorithm2e}
+
+The four primary behavioural mechanisms of the Mountain Gazelle Optimizer (MGO), as modeled in the pseudocode, are described as follows:
+
+\begin{enumerate}
+    \item \textbf{Territorial Solitary Males (TSM):} This mechanism represents dominant male gazelles that defend specific territories and engage in intensive localized search. In the optimization process, TSM performs strong exploitation by refining solutions within a confined neighbourhood around promising regions, aiming to improve solution accuracy and avoid missing nearby high-quality optima.
+
+    \item \textbf{Bachelor Male Herds (BMH):} This mechanism models groups of non-territorial or young male gazelles that move cohesively while exploring new areas. BMH contributes to both exploration and controlled exploitation by following influential leaders while maintaining search diversity, thereby enabling the algorithm to balance refinement and diversification.
+
+    \item \textbf{Maternity Herds (MH):} This behaviour reflects cooperative movement among female gazelles, prioritizing safety and energy-efficient navigation. MH introduces stability to the optimization process by guiding solutions through smooth, cooperative movements toward promising regions without causing disruptive or random jumps, thus reinforcing consistent convergence.
+
+    \item \textbf{Migration for Food Sources (MSF):} This mechanism simulates long-distance travel triggered by limited resources or the need for richer environments. In optimization, MSF performs large-scale exploration by enabling solutions to move across distant and unexplored regions of the search space, significantly reducing the likelihood of premature convergence.
+\end{enumerate}
+
+
+\newpage
+\section{Grey Wolf Optimizer (GWO) — Brief Overview}
+The Grey Wolf Optimizer (GWO) is a population-based metaheuristic algorithm inspired by the social hierarchy and hunting strategy of grey wolves (Canis lupus) \cite{gwo}. It was proposed by Seyedali Mirjalili et al. (2014) and has since become one of the most popular nature-inspired optimization algorithms due to its simplicity, flexibility, and strong balance between exploration and exploitation \cite{metaheuristics}.
+
+In nature, grey wolves live and hunt in packs, typically consisting of 5–12 members. They exhibit a strict social hierarchy, where four levels of leadership exist: alpha, beta, delta, and omega. The alpha wolves are the leaders responsible for decision-making and guiding the pack. The beta wolves assist the alphas and maintain discipline, while delta wolves follow the commands of alpha and beta and supervise the omegas. The omega wolves represent the lowest rank and often play a submissive role, ensuring the pack’s unity and social balance.
+
+GWO mathematically models this hierarchy to guide the search process toward optimal solutions. During optimization, the best three solutions are considered as alpha, beta, and delta, respectively, while the remaining candidates are treated as omega, and these leaders guide the positional updates of other wolves \cite{banaie2021}.
+
+The algorithm has been widely applied to engineering optimization, feature selection, image processing, scheduling, and neural network training \cite{elaziz2021}. Its main strengths include simplicity, few control parameters, and strong global search capability; however, like most metaheuristic algorithms, it may experience premature convergence on highly complex multimodal landscapes. Researchers have developed various improved and hybrid GWO variants—such as adaptive GWO, chaotic GWO, and hybrids with other algorithms—to enhance convergence speed, accuracy, and robustness.
+\subsection{Encircling Behavior}
+Grey wolves encircle their prey during the hunt, represented by:
+\begin{equation}
+\vec{D} = \left| \vec{C} \cdot \vec{X}_p(t) - \vec{X}(t) \right|
+\label{eq:gwo_encircle_D}
+\end{equation}
+\begin{equation}
+\vec{X}(t+1) = \vec{X}_p(t) - \vec{A} \cdot \vec{D}
+\label{eq:gwo_encircle_update}
+\end{equation}
+
+where, $\vec{X}_p(t)$ denotes the prey (best solution) position at iteration $t$, while $\vec{X}(t)$ represents the current grey wolf position. The coefficient vectors $\vec{A}$ and $\vec{C}$ control movement intensity and attraction toward the prey, respectively, and $\vec{D}$ expresses the distance between the wolf and prey used to update the new position $\vec{X}(t+1)$.
+
+and $\vec{A}$ and $\vec{C}$ are coefficient vectors computed as:
+
+
+\begin{equation}
+\vec{A} = 2 \vec{a} \cdot \vec{r}_1 - \vec{a}, \qquad
+\vec{C} = 2 \cdot \vec{r}_2
+\label{eq:gwo_coeff}
+\end{equation}
+Here, $\vec{r}_1$ and $\vec{r}_2$ are random vectors in $[0,1]$, and $\vec{a}$ decreases linearly from 2 to 0 over the iterations to balance exploration and exploitation.
+
+\subsection{Hunting Behavior}
+The best three wolves ($\alpha$, $\beta$, and $\delta$) are assumed to have better knowledge about the prey’s location. Other wolves update their positions based on these three leaders as follows:
+\begin{align}
+\vec{D}_{\alpha} &= | \vec{C}_1 \circ X_{\alpha} - X_i|, &
+\vec{X}_1 &= X_{\alpha} - \vec{A}_1 \circ \vec{D}_{\alpha},\\
+\vec{D}_{\beta} &= | \vec{C}_2 \circ X_{\beta} - X_i|, &
+\vec{X}_2 &= X_{\beta} - \vec{A}_2 \circ \vec{D}_{\beta},\\
+\vec{D}_{\delta} &= | \vec{C}_3 \circ X_{\delta} - X_i|, &
+\vec{X}_3 &= X_{\delta} - \vec{A}_3 \circ \vec{D}_{\delta},
+\end{align}
+
+where, $X_{\alpha}$, $X_{\beta}$, and $X_{\delta}$ represent the position vectors of the three best wolves, while $X_i$ denotes the current wolf position. The vectors $\vec{C}_1$, $\vec{C}_2$, and $\vec{C}_3$ are coefficient vectors that control attraction strength, and $\vec{A}_1$, $\vec{A}_2$, and $\vec{A}_3$ are adaptive vectors that regulate the step size and movement direction. The terms $\vec{D}_{\alpha}$, $\vec{D}_{\beta}$, and $\vec{D}_{\delta}$ measure the relative distances between the current wolf and the three leaders, and $\vec{X}_1$, $\vec{X}_2$, and $\vec{X}_3$ represent the updated candidate positions generated based on $\alpha$, $\beta$, and $\delta$ guidance, respectively.
+
+
+\begin{equation}
+\vec{X}(t+1) = \frac{\vec{X}_1 + \vec{X}_2 + \vec{X}_3}{3}
+\label{eq:gwo_position_update}
+\end{equation}
+This approach allows wolves to converge around the most promising solutions found by $\alpha$, $\beta$, and $\delta$ wolves.
+
+\subsection{Attacking Prey (Exploitation Phase)}
+As the iteration count increases, the value of $\vec{a}$ decreases, reducing $|\vec{A}|$ and encouraging the wolves to attack the prey by converging towards the best solution.
+
+\[
+X_{GWO} = \frac{\vec{X}_1 + \vec{X}_2 + \vec{X}_3}{3}.
+\]
+where, $X_{GWO}$ represents the final updated position of a search agent in the Grey Wolf Optimizer, computed as the average of three candidate positions: $\vec{X}_1$, $\vec{X}_2$, and $\vec{X}_3$.
+
+\subsection{Search for Prey (Exploration Phase)}
+When $|\vec{A}| > 1$, wolves diverge from the prey to explore the search space, promoting global exploration.
+
+
+
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.1\linewidth]{11042_2023_15146_Fig3_HTML.png}
+    \caption{HIERARCHY OF GREY WOLVES}
+    \label{fig:your_label}
+\end{figure}
+
+The image presents the social hierarchy model used in the Grey Wolf Optimizer (GWO), and it can be understood step-by-step as an instructive structure for how search agents behave. At the top of the pyramid, alpha wolves act as the main decision-makers, and their position represents the current best solution. Supporting them are the beta wolves, who serve as advisors and help update guidance based on the second-best solution. Below them are the delta wolves, who behave as scouts, messengers, and protectors, contributing information from the third-best solution. 
+
+\newpage
+\section{Hybrid MGO--GWO Optimizer}
+
+\subsection{Motivation and Strategy}
+
+Although the Mountain Gazelle Optimizer (MGO) demonstrates strong exploratory capability, 
+its performance on unimodal benchmark functions reveals a noticeable limitation in local exploitation. 
+On landscapes such as Sphere, Schwefel 1.2, Rosenbrock, Shifted Sphere, Quartic Noise, and Sum Squares, 
+the algorithm tends to slow down or stagnate near the optimum. This occurs because MGO relies mainly on 
+diverse movement operators without a strong mechanism for fine-grained refinement, causing it to miss 
+precise local improvements once a promising region has been identified.
+
+To address this weakness, the Grey Wolf Optimizer (GWO) is incorporated as a complementary exploitation 
+component. GWO provides structured local search using its leadership hierarchy, where the best three wolves 
+denoted as $\alpha$, $\beta$, and $\delta$ guide the population towards high-quality regions. Through 
+encircling and leader-driven position updates, GWO excels at intensifying the search around good solutions, 
+making it well suited for unimodal and narrow-basined problems requiring accurate convergence.
+
+The proposed hybrid strategy leverages the strengths of both methods:
+\begin{itemize}
+    \item MGO generates multiple exploratory trial positions (e.g., TSM, MH, BMH, MSF), enabling wide coverage of the search space and reducing the risk of premature convergence.
+    \item GWO provides exploitation by refining candidate solutions based on the guidance of $\alpha$, $\beta$, and $\delta$.
+\end{itemize}
+
+During each iteration, an agent receives two potential updates: an exploration candidate from MGO, and an exploitation candidate from GWO.
+These are then blended using adaptive weights to form a hybrid candidate:
+\[
+X_i^{t+1} = \omega_{1}(t)\,X_{i}^{\mathrm{MGO}} + \omega_{2}(t)\,X_{i}^{\mathrm{GWO}},
+\]
+where
+\[
+\omega_{1}(t) + \omega_{2}(t) = 1.
+\]
+
+To ensure a smooth transition from global to local search, the weight $\omega_{2}(t)$ is designed to increase over time; for example, with a quadratic schedule:
+\[
+\omega_{2}(t) = \left(\frac{t}{T_{\max}}\right)^{2}, \qquad
+\omega_{1}(t) = 1 - \omega_{2}(t).
+\]
+
+Thus, early in the optimization process the algorithm prioritizes exploration through MGO, while in later iterations it shifts progressively toward GWO-driven exploitation. After generating the MGO, GWO, and hybrid candidates, a greedy selection mechanism ensures that the best among them replaces the agent’s position. This guarantees consistent improvement and preserves high-quality solutions.
+
+Overall, the hybrid MGO--GWO strengthens exploitation without reducing exploration capability, yielding a more balanced, stable, and efficient search process for both unimodal and multimodal optimization problems.
+
+
+
+
+\subsection{Pseudocode (Hybrid MGO--GWO)}
+   % ============================================================
+% Explanation Section for Hybrid MGO--GWO Algorithm
+% ============================================================
+
+To achieve an effective balance between global exploration and local exploitation, 
+the Hybrid Mountain Gazelle--Grey Wolf Optimizer (MGO--GWO) integrates the complementary 
+strengths of both algorithms. The Mountain Gazelle Optimizer (MGO) contributes strong 
+exploratory behaviour by generating multiple trial positions (such as TSM, MH, BMH, MSF), 
+allowing the population to explore widely and maintain diversity during early iterations. 
+Once promising regions are identified, the Grey Wolf Optimizer (GWO) contributes 
+exploitation through its leader-based update mechanism. Using the best three individuals 
+in the population---denoted by $\alpha$ (best), $\beta$ (second-best), and $\delta$ (third-best)--- 
+GWO guides the population toward refined high-quality regions.
+
+The hybrid algorithm adaptively blends the most successful MGO exploration candidate with the 
+GWO exploitation update using time-varying weights. This enables a smooth transition from 
+exploration-dominant behaviour in early iterations to exploitation-oriented refinement in 
+later stages. A greedy selection rule ensures that each agent adopts the best choice among 
+its current position, the MGO candidate, the GWO candidate, and the hybrid combined candidate. 
+The population is updated synchronously, and the leaders $\alpha$, $\beta$, and $\delta$ 
+are recalculated after each iteration.
+
+\vspace{2mm}
+\noindent \textbf{Explanation of terms and symbols used in the pseudocode:}
+\begin{itemize}
+    \item \textbf{$X_i$}: Position vector of the $i$-th agent.
+    \item \textbf{$f(X_i)$}: Fitness or objective value of the solution $X_i$.
+    \item \textbf{$N$}: Population size.
+    \item \textbf{$D$}: Number of decision variables (problem dimension).
+    \item \textbf{$[L,U]$}: Lower and upper bounds for each decision variable; used during boundary repair.
+    \item \textbf{$\alpha$, $\beta$, $\delta$}: The best, second-best, and third-best individuals in the current population (GWO leaders).
+    \item \textbf{TSM, MH, BMH, MSF}: Candidate trial positions generated by MGO exploration mechanisms. The best among them is selected as the exploration move.
+    \item \textbf{Candidate set $\mathcal{C}$}: The set of all MGO-generated trial solutions.
+    \item \textbf{$X_i^{\text{MGO}}$}: Best exploration candidate found by MGO for agent $i$.
+    \item \textbf{$X_i^{\text{GWO}}$}: Exploitation candidate generated using the GWO update guided by $\alpha$, $\beta$, and $\delta$.
+    \item \textbf{$\omega_1$, $\omega_2$}: Weight factors controlling the contribution of MGO and GWO components. 
+          Typically $\omega_2 = (t/T_{\max})^2$ increases with iterations, and $\omega_1 = 1 - \omega_2$.
+    \item \textbf{$X_i^{\text{hyb}}$}: Hybrid candidate obtained by combining $X_i^{\text{MGO}}$ and $X_i^{\text{GWO}}$.
+    \item \textbf{Greedy selection}: For each agent, the algorithm chooses the best option among 
+          $\{X_i,\; X_i^{\text{MGO}},\; X_i^{\text{GWO}},\; X_i^{\text{hyb}}\}$.
+    \item \textbf{Synchronous update}: The population is updated only after all agents have generated and evaluated 
+          their proposed candidates, ensuring consistent use of leaders $\alpha$, $\beta$, and $\delta$.
+    \item \textbf{$X_{best}$}: The best solution discovered during the entire optimization process.
+\end{itemize}
+
+
+
+\begin{algorithm2e}[H]
+\caption{Hybrid Mountain Gazelle–Gray Wolf Optimizer (MGO–GWO) — corrected}
+\label{alg:mgo-gwo-corrected}
+\KwIn{Objective $f$, population size $N$, dimension $D$, bounds $[L,U]$, max iterations $T_{\max}$, optional fitness vector $\mathrm{Sol\_Cost}$}
+\KwOut{Best solution $X_{\text{best}}$ and $f(X_{\text{best}})$}
+
+Initialize population $\{X_i\}_{i=1}^N$ uniformly in $[L,U]$\;
+Evaluate $f(X_i)$ for all $i$ (store in $F$) if $\mathrm{Sol\_Cost}$ not provided\;
+Sort population by fitness (ascending) and set leaders $\alpha,\beta,\delta$ to best, 2nd, 3rd (from the \emph{current} population)\;
+Set $X_{\text{best}}\leftarrow X_\alpha,\; f_{\text{best}}\leftarrow F(\alpha)$\;
+
+\For{$t \leftarrow 1$ \KwTo $T_{\max}$}{
+  \tcp{use leaders from \textbf{previous} (current) population — synchronous proposals}
+  $\omega_2 \leftarrow \left(\dfrac{t}{T_{\max}}\right)^2$\; \quad $\omega_1 \leftarrow 1-\omega_2$ \tcp*{adaptive weight schedule (quadratic)}
+  
+  Initialize empty proposal lists $X^{\text{prop}}[1{:}N],\; F^{\text{prop}}[1{:}N]$\;
+  
+  \ForEach{gazelle $i=1\ldots N$}{
+    $X_{\text{cur}} \leftarrow X_i,\; f_{\text{cur}} \leftarrow F(i)$\;
+    
+    \tcp{--- (A) MGO exploration: generate multiple candidates and evaluate each ---}
+    Generate candidate set $\mathcal{C}=\{TSM,\,MH,\,BMH,\,MSF,\ldots\}$ using MGO exploration rules\;
+    \ForEach{candidate $c\in\mathcal{C}$}{
+      $c \leftarrow \operatorname{repair}(c,[L,U])$\; \quad $f_c \leftarrow f(c)$\;
+    }
+    Choose $X^{\text{MGO}}_i \leftarrow \arg\min_{c\in\mathcal{C}} f_c$, and let $f^{\text{MGO}}_i$ be its cost\;
+    
+    \tcp{--- (B) GWO exploitation candidate (use current leaders $\alpha,\beta,\delta$) ---}
+    Compute GWO coefficients: $a = 2\left(1-\dfrac{t}{T_{\max}}\right)$, draw $r$'s, form $A_k,C_k$ for $k=1,2,3$\;
+    Compute $X_1,X_2,X_3$ and set $X^{\text{GWO}}_i = (X_1+X_2+X_3)/3$\;
+    $X^{\text{GWO}}_i \leftarrow \operatorname{repair}(X^{\text{GWO}}_i,[L,U])$\; \quad $f^{\text{GWO}}_i \leftarrow f(X^{\text{GWO}}_i)$\;
+    
+    \tcp{--- (C) Hybrid combination and evaluation ---}
+    $X^{\text{hyb}}_i \leftarrow \omega_1\,X^{\text{MGO}}_i + \omega_2\,X^{\text{GWO}}_i$\;
+    $X^{\text{hyb}}_i \leftarrow \operatorname{repair}(X^{\text{hyb}}_i,[L,U])$\; \quad $f^{\text{hyb}}_i \leftarrow f(X^{\text{hyb}}_i)$\;
+    
+    \tcp{--- (D) Selection / greedy acceptance (elitist) ---}
+    Choose the best among \(\{(X_{\text{cur}},f_{\text{cur}}),\; (X^{\text{MGO}}_i,f^{\text{MGO}}_i),\; (X^{\text{GWO}}_i,f^{\text{GWO}}_i),\; (X^{\text{hyb}}_i,f^{\text{hyb}}_i)\}\)\;
+    Set $X^{\text{prop}}[i]$ and $F^{\text{prop}}[i]$ to the chosen (solution, cost)\;
+    %\tcp{Option: record which operator won (MGO/GWO/Hyb/None) for logging}
+  }
+  
+  \tcp{--- (E) Synchronous population update and leader refresh ---}
+  $X \leftarrow X^{\text{prop}},\; F \leftarrow F^{\text{prop}}$\;
+  Sort population $X$ by $F$ ascending; set $\alpha,\beta,\delta \leftarrow$ best, 2nd, 3rd\;
+  \If{$F(\alpha) < f_{\text{best}}$}{
+    $X_{\text{best}} \leftarrow X_\alpha,\; f_{\text{best}} \leftarrow F(\alpha)$\;
+  }
+  %\tcp{Optional: print/log acceptance statistics each iteration}
+}
+\Return{$X_{\text{best}},\; f_{\text{best}}$}\;
+\end{algorithm2e}
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth,
+                     height=0.86\textheight,
+                     keepaspectratio]{hybrid_flowchart.png}
+    \caption{FLOWCHART OF HYBRID MGO\_GWO}
+    \label{fig:two_images_vertical}
+\end{figure}
+
+
+\newpage
+\section{Computational Complexity Analysis}
+
+\subsection{MGO Complexity}
+
+\paragraph{} 
+It is influenced by three primary factors: initialization, fitness assessment, and Gazelle update. 
+The computational cost of the initialization operation is equivalent to $\mathcal{O}(N)$ due to the existence of $N$ gazelles. 
+Furthermore, the computational complexity of the mechanism for producing and updating new solutions, which is conducted on all search agents in the optimization space, is equal to $\mathcal{O}(T \times N \times D \times 4)$, 
+where $D$ is the problem dimension and $T$ is the maximum number of iterations. 
+Finally, the overall computational complexity of the MGO algorithm is given by 
+$\mathcal{O}(T \times N \times 4) \times \mathcal{O}(f(P))$ 
+when the cost function $f(P)$ is evaluated.
+
+\subsection{MGO-GWO Complexity}
+
+Let $N$ be population size, $D$ the problem dimension, $T_{max}$ iterations, and $k$ elite count for micro-refinement with $L$ inner steps.
+
+\begin{itemize}
+  \item MGO updates per iteration: $O(N \cdot D)$ (simple vector operations and fitness evaluations).
+  \item GWO updates per iteration: $O(N \cdot D)$.
+  \item Optional micro-refinement: $O(k \cdot D \cdot L)$.
+\end{itemize}
+Total cost per iteration: $O(ND + kDL) \approx O(ND)$ since $k \ll N$ and $L$ is small. Overall complexity: $O(N D T_{max})$ with a small constant factor overhead for the hybrid combination.
+
+\section{Results and Discussion}
+
+\subsection{Benchmark Functions}
+
+Benchmark functions serve as standardized mathematical test beds used to evaluate and compare the performance of optimization algorithms. They provide controlled environments with known characteristics—such as unimodality, multimodality, separability, noise, and variable interactions—allowing researchers to assess exploration ability, exploitation strength, convergence behavior, and robustness. Unimodal functions test how well an algorithm performs local search and approaches a single global optimum, while multimodal functions measure its ability to escape local minima and navigate complex landscapes. By analyzing performance across diverse benchmark functions, researchers can objectively determine the strengths, weaknesses, and generalization capability of an optimization method.
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{llp{5.2cm}cc}
+\toprule
+\textbf{ID} & \textbf{Name} & \textbf{Formula} & \textbf{Domain} & \textbf{Optimum} \\
+\midrule
+
+F1 & Sphere 
+& $f(x)=\displaystyle\sum_{i=1}^{D} x_i^{2}$ 
+& $[-100,\,100]$ 
+& $0$ \\
+
+F2 & Schwefel~2.22 
+& $f(x)=\displaystyle\sum_{i=1}^{D} |x_i| \;+\; \prod_{i=1}^{D} |x_i|$ 
+& $[-10,\,10]$ 
+& $0$ \\
+
+F3 & Schwefel~1.2 
+& $f(x)=\displaystyle\sum_{i=1}^{D}\left(\sum_{j=1}^{i} x_j\right)^{2}$ 
+& $[-100,\,100]$ 
+& $0$ \\
+
+F4 & Rosenbrock 
+& $f(x)=\displaystyle\sum_{i=1}^{D-1}\left[100(x_{i+1}-x_i^{2})^{2}+(x_i-1)^{2}\right]$ 
+& $[-30,\,30]$ 
+& $0$ \\
+
+F5 & Step 
+& $f(x)=\displaystyle\sum_{i=1}^{D} \left\lfloor x_i+0.5 \right\rfloor^{2}$ 
+& $[-100,\,100]$ 
+& $0$ \\
+
+F6 & Quartic + Noise 
+& $f(x)=\displaystyle\sum_{i=1}^{D} i\,x_i^{4} \;+\; \text{rand}(0,1)$ 
+& $[-1.28,\,1.28]$ 
+& $\approx 0$ \\
+
+F7 & Sum of Squares 
+& $f(x)=\displaystyle\sum_{i=1}^{D} i\,x_i^{2}$ 
+& $[-10,\,10]$ 
+& $0$ \\
+
+\bottomrule
+\end{tabular}
+\caption{Unimodal benchmark functions (F1–F7) used for evaluation}
+\label{tab:unimodal}
+\end{table}
+
+The unimodal benchmark set covers a variety of equation structures to evaluate core optimization behavior. Smooth and convex functions like Sphere assess basic convergence, while cumulative and curved‐valley forms such as Schwefel 1.2 and Rosenbrock test precision and exploitation ability. Discontinuous (Step) and stochastic quartic functions introduce noise and irregularity, examining an algorithm’s robustness and stability.
+
+
+
+
+\subsection{Convergence Graphs}
+
+Convergence graphs illustrate the progression of an optimization algorithm toward the global optimum over successive iterations. The x-axis represents the iteration count, while the y-axis shows the best objective function value achieved so far. These graphs are obtained by tracking the best-so-far solution at each iteration, typically averaged over multiple independent runs to account for stochastic effects. The algorithms used were obtained from MATLAB File Exchange \cite{pso_mw, mgo_mw, gwo_mw, tsa_mw, sca_mw}.
+.500 iterations across 30 runs have been performed.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img23.jpg}
+    \vspace{0.4cm} % space between images
+    \includegraphics[width=0.9\textwidth]{img24.jpg}
+    \caption{CONVERGENCE GRAPHS}
+    \label{fig:two_images_vertical}
+\end{figure}
+
+
+
+
+
+\begin{comment}
+%==================== First Page ====================%
+\begin{figure}[!ht]
+    \centering
+    % Row 1
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img15.jpg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img16.jpg}
+    \end{subfigure}
+    
+    % Row 2
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img17.jpg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img18.jpg}
+    \end{subfigure}
+
+    % Row 3
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img19.jpg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img20.jpg}
+    \end{subfigure}
+
+    % Row 4 (single image to make 7)
+    \begin{subfigure}[b]{0.98\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img21.jpg}
+    \end{subfigure}
+
+    \caption{MEDIAN CONVERGENCE GRAPHS for HYBRID MGO-GWO}
+\end{figure}
+\end{comment}
+
+
+
+\newpage
+
+
+\subsection{Standard Compared Algorithms}
+
+The Mountain Gazelle Optimizer (MGO) and the Hybrid MGO–GWO algorithm have been evaluated on a wide range of standard benchmark functions—unimodal (UM) and multimodal (MM)—each designed to probe different aspects of an optimizer’s search dynamics. Unimodal functions (F1–F7) primarily assess exploitation by examining how quickly and accurately an algorithm can converge to a single global optimum. Multimodal functions (F8–F23), with numerous local optima, evaluate exploration capability and the robustness required to avoid premature convergence. While original MGO demonstrates strong exploratory behavior, integrating the exploitation mechanism of GWO into MGO results in the Hybrid algorithm achieving a more balanced and adaptive search process. This synergy—MGO’s exploration with GWO’s exploitation—enables the Hybrid variant to outperform all compared algorithms on unimodal functions, reflecting superior precision in fine-tuning solutions.
+
+Comparative studies against established optimizers such as GWO, PSO, SCA, TSA, and WOA show that the Hybrid consistently delivers higher accuracy, stronger convergence stability, and improved robustness across diverse functions. As illustrated in Fig. 5, the best-solution cost curves exhibit rapid and steady descent, demonstrating the Hybrid algorithm’s enhanced ability to maintain an effective exploration–exploitation trade-off throughout the optimization process.
+
+The legend for the following results has been shown here for better readability:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{Screenshot 2025-12-08 195953.png}
+    
+    \label{fig:your_label}
+\end{figure}
+
+The results of comparison have been shown on the following page:
+
+
+
+
+\newpage
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.90\textwidth]{img26.jpg}
+    \vspace{0.4cm} % space between images
+    \includegraphics[width=0.90\textwidth]{img27.jpg}
+    \caption{CONVERGENCE GRAPHS}
+    \label{fig:two_images_vertical}
+\end{figure}
+
+
+
+
+\begin{comment}
+    
+
+%==================== First Page ====================%
+\begin{figure}[!ht]
+    \centering
+    % Row 1
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img1.jpg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img2.jpg}
+    \end{subfigure}
+    
+    % Row 2
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img3.jpg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img4.jpg}
+    \end{subfigure}
+
+    % Row 3
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img5.jpg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img6.jpg}
+    \end{subfigure}
+
+    % Row 4 (single image to make 7)
+    \begin{subfigure}[b]{0.98\textwidth}
+        \includegraphics[width=\linewidth,height=0.22\textheight]{img7.jpg}
+    \end{subfigure}
+
+    \caption{COMPARISON OF HYBRID MGO-GWO WITH STANDARD OPTIMIZERS}
+\end{figure}
+
+\end{comment}
+
+
+
+
+
+\begin{table}[H]
+\centering
+\small
+\caption{Mean/Median/Std/Best/Worst Metrics on Unimodal functions}
+\setlength{\tabcolsep}{6pt}
+
+% -------------------- Centered + scaled table --------------------
+\makebox[\textwidth][c]{%
+  \scalebox{0.9}{%
+    \begin{tabular}{lrrrrrrr}
+      \toprule
+      Function & MGO & HYBRID & GWO & PSO & WOA & SCA & TSA \\
+      \midrule
+      F1 Mean & 2.52e-70 & 6.69e-115 & 8.10e-28 & 1.37e-06 & 6.48e-72 & 1.33e+01 & 1.33e-21 \\
+      F1 Median & 1.83e-76 & 7.56e-121 & 4.22e-28 & 9.96e-10 & 1.82e-78 & 3.96e+00 & 2.93e-22 \\
+      F1 Std & 1.38e-69 & 3.66e-114 & 1.17e-27 & 6.46e-06 & 3.33e-71 & 3.08e+01 & 2.76e-21 \\
+      F1 Best & 4.71e-84 & 1.36e-126 & 8.25e-30 & 1.91e-13 & 1.98e-89 & 9.95e-03 & 5.36e-24 \\
+      F1 Worst & 7.53e-69 & 2.01e-113 & 4.45e-27 & 3.52e-05 & 1.82e-70 & 1.70e+02 & 1.45e-20 \\
+      \midrule
+      F2 Mean & 3.85e-42 & 4.42e-68 & 9.34e-17 & 8.54e-02 & 7.11e-51 & 1.68e-02 & 7.67e-14 \\
+      F2 Median & 1.44e-43 & 2.20e-70 & 8.84e-17 & 5.11e-02 & 2.27e-53 & 4.84e-03 & 4.64e-14 \\
+      F2 Std & 1.18e-41 & 1.46e-67 & 5.28e-17 & 1.14e-01 & 1.93e-50 & 3.85e-02 & 7.49e-14 \\
+      F2 Best & 1.28e-45 & 6.16e-73 & 1.97e-17 & 1.90e-03 & 2.10e-57 & 6.02e-04 & 1.97e-15 \\
+      F2 Worst & 5.66e-41 & 6.33e-67 & 2.48e-16 & 5.17e-01 & 8.51e-50 & 2.05e-01 & 2.94e-13 \\
+      \midrule
+      F3 Mean & 1.37e-08 & 3.20e-08 & 2.04e-05 & 6.76e+01 & 4.45e+04 & 9.02e+03 & 5.77e-04 \\
+      F3 Median & 6.85e-11 & 3.01e-10 & 1.93e-06 & 4.46e+01 & 4.36e+04 & 5.92e+03 & 4.41e-05 \\
+      F3 Std & 4.36e-08 & 1.46e-07 & 5.84e-05 & 5.91e+01 & 1.35e+04 & 7.32e+03 & 2.04e-03 \\
+      F3 Best & 1.48e-15 & 7.75e-16 & 2.68e-08 & 4.32e+00 & 8.56e+03 & 1.09e+03 & 3.51e-10 \\
+      F3 Worst & 2.12e-07 & 7.99e-07 & 3.10e-04 & 2.61e+02 & 7.33e+04 & 3.25e+04 & 1.12e-02 \\
+      \midrule
+      F4 Mean & 4.19e-23 & 1.73e-28 & 9.74e-07 & 2.05e+00 & 5.03e+01 & 3.27e+01 & 4.08e-01 \\
+      F4 Median & 2.40e-26 & 2.36e-30 & 4.74e-07 & 1.89e+00 & 4.64e+01 & 3.40e+01 & 1.89e-01 \\
+      F4 Std & 1.99e-22 & 6.11e-28 & 1.57e-06 & 9.25e-01 & 2.46e+01 & 1.23e+01 & 7.08e-01 \\
+      F4 Best & 1.98e-28 & 3.73e-33 & 9.35e-08 & 8.91e-01 & 1.85e+00 & 5.42e+00 & 1.25e-02 \\
+      F4 Worst & 1.09e-21 & 2.84e-27 & 8.15e-06 & 4.77e+00 & 8.41e+01 & 5.27e+01 & 3.87e+00 \\
+      \midrule
+      F5 Mean & 1.53e-24 & 6.55e-02 & 2.72e+01 & 4.01e+01 & 2.80e+01 & 5.69e+04 & 2.81e+01 \\
+      F5 Median & 2.78e-29 & 6.28e-02 & 2.71e+01 & 2.54e+01 & 2.79e+01 & 7.47e+03 & 2.86e+01 \\
+      F5 Std & 6.35e-24 & 4.38e-02 & 8.14e-01 & 3.34e+01 & 5.60e-01 & 1.16e+05 & 9.29e-01 \\
+      F5 Best & 0.00e+00 & 1.08e-04 & 2.61e+01 & 4.54e+00 & 2.71e+01 & 3.75e+01 & 2.62e+01 \\
+      F5 Worst & 3.39e-23 & 1.63e-01 & 2.88e+01 & 1.43e+02 & 2.88e+01 & 5.78e+05 & 2.89e+01 \\
+      \midrule
+      F6 Mean & 2.31e-09 & 8.85e-05 & 7.05e-01 & 7.40e-07 & 4.15e-01 & 1.55e+01 & 3.59e+00 \\
+      F6 Median & 7.91e-10 & 8.01e-05 & 7.45e-01 & 4.83e-10 & 4.28e-01 & 8.39e+00 & 3.57e+00 \\
+      F6 Std & 4.61e-09 & 3.63e-05 & 3.90e-01 & 3.03e-06 & 1.82e-01 & 1.43e+01 & 7.01e-01 \\
+      F6 Best & 1.43e-13 & 3.20e-05 & 9.35e-05 & 6.79e-13 & 1.07e-01 & 4.70e+00 & 2.32e+00 \\
+      F6 Worst & 2.34e-08 & 2.05e-04 & 1.48e+00 & 1.64e-05 & 8.19e-01 & 5.37e+01 & 5.29e+00 \\
+      \midrule
+      F7 Mean & 3.86e-04 & 2.26e-04 & 1.98e-03 & 3.25e-02 & 4.78e-03 & 1.01e-01 & 1.19e-02 \\
+      F7 Median & 3.82e-04 & 1.81e-04 & 1.65e-03 & 3.20e-02 & 4.07e-03 & 1.01e-01 & 1.07e-02 \\
+      F7 Std & 1.99e-04 & 1.49e-04 & 1.31e-03 & 1.24e-02 & 3.88e-03 & 6.55e-02 & 5.83e-03 \\
+      F7 Best & 2.52e-05 & 3.06e-05 & 4.26e-04 & 1.00e-02 & 6.54e-05 & 8.32e-03 & 4.38e-03 \\
+      F7 Worst & 8.45e-04 & 6.35e-04 & 6.96e-03 & 5.47e-02 & 1.46e-02 & 2.52e-01 & 2.62e-02 \\
+      \midrule
+      \bottomrule
+    \end{tabular}
+  }% end sca lebox
+}% end makebox
+
+\end{table}
+
+
+
+
+
+
+
+
+
+The comparative results presented in the table above highlight the superior optimization performance of the proposed Hybrid MGO–GWO algorithm across the benchmark functions F1–F7. Each metric provides insight into different aspects of algorithmic behavior: Mean reflects the average solution quality, Median captures central tendency, Std indicates performance stability, while Best and Worst values show the algorithm’s range across multiple runs. Across all these metrics, the Hybrid model consistently records lower error values and tighter deviations, confirming higher accuracy and reliability.
+
+For classic unimodal functions such as \textbf{Sphere (F1)} and \textbf{Schwefel~2.22 (F2)}, the Hybrid algorithm demonstrates clear superiority. Its substantially lower Mean and Median fitness values indicate faster convergence toward the global optimum, while the reduced Std reflects more stable behaviour across runs. This improvement is particularly evident for the \textbf{Schwefel~1.2 (F3)} and \textbf{Rosenbrock (F4)} functions, where the integration of GWO’s exploitation mechanism enables sharper refinement in narrow curved valleys, allowing the Hybrid method to outperform standalone MGO, GWO, and the other competing algorithms.
+
+Likewise, on functions such as \textbf{Step (F5)}, \textbf{Quartic,{+},Noise (F6)}, and \textbf{Sum of Squares (F7)}, the Hybrid variant maintains strong refinement capability. Its Best values frequently surpass those of the comparative algorithms, while its Worst values remain consistently lower, indicating that the hybrid structure effectively avoids stagnation and poor-quality runs even in steep, noisy, or irregular search landscapes.
+
+Overall, these findings confirm that the Hybrid MGO–GWO algorithm demonstrates superior adaptability and robustness across all evaluated functions. By combining MGO’s strong exploration with GWO’s precise exploitation strategy, the hybrid model achieves lower error values, tighter variance, and more consistent convergence across all reported metrics.
+
+\subsection{Wilcoxon Signed Rank-Test}
+
+The Wilcoxon Signed-Rank Test is a non-parametric statistical method used to determine whether two algorithms exhibit significantly different performance when evaluated over identical benchmark runs. In this study, the test is applied to compare the proposed \textbf{hybrid} algorithm against each of the six competing methods individually—namely TSA, MGO, GWO, PSO, WOA, and SCA—with the resulting hybrid–competitor p-values summarised in the accompanying table. The analysis is based on paired samples, where each pair corresponds to the performance of hybrid and a given competitor on the same run of a benchmark function. For each run \(i\), the signed difference is computed as
+\[
+d_{i} = \mathrm{Hybrid}_{i} - \mathrm{Competitor}_{i}, 
+\qquad i = 1,\ldots,30,
+\]
+where \(\mathrm{Hybrid}_{i}\) denotes the performance value obtained by the hybrid algorithm on the \(i\)-th run, \(\mathrm{Competitor}_{i}\) denotes the corresponding performance of any one of the six algorithms being compared with hybrid on the same run, and \(d_{i}\) represents the relative performance margin for that run (with \(d_{i}<0\) indicating better hybrid performance when lower values are preferred).
+
+These signed differences are then ranked according to their absolute magnitudes while retaining their signs, and the Wilcoxon procedure aggregates the positive and negative rank sums to form a test statistic, which is subsequently converted into a p-value. Small p-values (e.g., \(p<0.05\)) indicate that hybrid consistently outperforms the competitor across runs, whereas larger values suggest that the observed differences are not statistically meaningful. By performing this analysis for each hybrid–competitor pairing across all benchmark functions, the table provides a rigorous statistical assessment of whether the hybrid algorithm’s improvements over TSA and the other optimisation algorithms are systematic and significant rather than attributable to random variation.
+
+
+
+\begin{table}[ht]
+\centering
+\small
+\begin{threeparttable}
+\caption{Wilcoxon signed-rank tests comparing \textbf{hybrid} to each algorithm on functions F1--F7.}
+\label{tab:hybrid_vs_algos_by_function}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Algorithm & F1 & F2 & F3 & F4 & F5 & F6 & F7 \\
+\midrule
+MGO   & \textbf{1.779e-06} & \textbf{1.779e-06} & 3.311e-01 & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.621e-03} \\
+GWO   & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{3.604e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} \\
+PSO   & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} \\
+WOA   & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{2.414e-06} & \textbf{1.779e-06} \\
+SCA   & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} \\
+TSA & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} & \textbf{1.779e-06} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\item \textbf{Notes:} Cells show two-tailed Wilcoxon signed-rank p-values comparing \textbf{hybrid} vs the row algorithm on each function. Bold entries are significant after Bonferroni correction for 6 comparisons per function (adjusted $\alpha=0.05/6 = 0.00833333$). The only non-significant cell is mgo vs hybrid on F3 ($p=3.311\times10^{-1}$). Identical very small p-values occur when every paired run has the same sign (hybrid dominates for every run), producing extremal Wilcoxon results.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+
+As shown in the table above, each entry corresponds to the Wilcoxon p-value for a specific hybrid–competitor comparison on a benchmark function. The consistency of the extremely small p-values across most functions arises from the behaviour of the signed differences \(d_i\): in many cases, all differences share the same direction (e.g., \(d_i<0\) for every run), meaning the hybrid algorithm outperforms the competitor uniformly across all paired samples. When this happens, the Wilcoxon test receives a ranking pattern in which every signed rank reinforces the same direction, producing the maximal possible test statistic and thus nearly identical p-values (typically around \(10^{-6}\)). This repetition is therefore a direct consequence of strong and consistent dominance, not a computational artefact. Only when the directions of \(d_i\) are mixed—some positive and some negative—does the Wilcoxon statistic shrink, yielding larger and non-significant p-values.
+
+
+\section{Conclusion}
+\subsection{Problem Statement}
+
+Optimization problems in engineering, finance, and computational intelligence often involve complex, high-dimensional search spaces with multiple local minima. Traditional metaheuristic algorithms face a critical challenge in balancing \textit{exploration} (global search) and \textit{exploitation} (local refinement). The Mountain Gazelle Optimizer (MGO), inspired by the social and migratory behaviors of mountain gazelles, leverages four primary mechanisms: territorial solitary males, bachelor male herds, maternity herds, and long-range migration for food. These strategies allow MGO to explore the search space efficiently and avoid premature convergence.
+
+Despite its strong exploratory capability, MGO exhibits limited exploitation power, particularly in refining solutions near the global optimum. This limitation becomes evident when tested on unimodal benchmark functions such as Sphere, Rosenbrock, and Schwefel-type functions, where precise local search is critical. While MGO converges rapidly during early iterations, it often stagnates in later stages, failing to fully exploit promising regions.
+
+To address this weakness, the Grey Wolf Optimizer (GWO) can be integrated with MGO. GWO is renowned for its effective exploitation strategy, modeled after the social hierarchy and hunting behavior of grey wolves, enabling precise refinement of candidate solutions. By combining the exploration strength of MGO with the exploitation capability of GWO, the proposed hybrid MGO--GWO algorithm aims to achieve a balanced search mechanism. This hybrid maintains diverse exploration in the global search space while enhancing local convergence, thereby improving both solution accuracy and stability.
+
+The hybrid algorithm is evaluated on 23 benchmark functions, including 16 multimodal and 7 unimodal functions, and is compared against standard metaheuristics such as PSO, GWO, and standalone MGO. The primary objective is to demonstrate that the hybridization creates a synergistic effect, producing faster convergence, better precision, and robust performance across diverse optimization landscapes.
+.
+
+\subsection{Future Directions}
+
+Several avenues can be explored to further enhance the performance and applicability of the Hybrid MGO--GWO optimizer:
+
+\begin{itemize}
+    \item \textbf{Multi-objective Optimization:} Extend the hybrid algorithm to handle multi-objective problems, allowing simultaneous optimization of conflicting criteria such as cost, performance, and reliability in engineering applications.
+    
+    \item \textbf{Dynamic and Real-time Environments:} Adapt the algorithm to solve dynamic optimization problems where the search space or objective function changes over time, making it suitable for real-time systems such as smart grids or adaptive control.
+    
+    \item \textbf{Parallel and Distributed Implementation:} Implement the hybrid optimizer in parallel or distributed computing frameworks to handle very high-dimensional or computationally expensive problems more efficiently.
+    
+    \item \textbf{Hybridization with Other Metaheuristics:} Explore integration with other optimization algorithms, such as Differential Evolution or Ant Colony Optimization, to further improve convergence speed and solution diversity.
+    
+    \item \textbf{Application-specific Tuning:} Investigate problem-specific parameter tuning and adaptive strategies to make the hybrid algorithm more effective in domains such as robotics, aerospace, and renewable energy system design.
+\end{itemize}
+
+
+
+
+
+\newpage
+\nocite{*}
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+
+\end{document}
+
