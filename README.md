@@ -1,5 +1,10 @@
 # Hybrid MGO–GWO Optimization Framework
 
+[![GNU Octave](https://img.shields.io/badge/Octave-v9.0%2B-147395?style=flat&logo=octave&logoColor=white)](https://www.gnu.org/software/octave/)
+[![NSUT](https://img.shields.io/badge/NSUT-Dwarka%2C%20New%20Delhi-E63946?style=flat)](https://www.nsut.ac.in)
+[![Research Paper](https://img.shields.io/badge/Research%20Paper-Report%20PDF-B31B1B?style=flat&logo=academia&logoColor=white)](Report/FINAL_HybridAlgorithm_Paper.pdf)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This repository contains the complete implementation, experimentation scripts, and analysis tools for the improved **Hybrid MGO–GWO algorithm**.
 
 The project focuses on enhancing optimization performance through a hybridization strategy that integrates **MGO’s exploration capability** with **GWO’s exploitation mechanism**, resulting in more stable and faster convergence across a wide range of benchmark functions.
